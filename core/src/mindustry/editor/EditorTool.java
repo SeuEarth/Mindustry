@@ -22,6 +22,7 @@ public enum EditorTool{
 
             Tile tile = editor.tile(x, y);
             editor.drawBlock = tile.block() == Blocks.air || !tile.block().inEditor ? tile.overlay() == Blocks.air ? tile.floor() : tile.overlay() : tile.block();
+            editor.drawBlock.editorPicked(tile);
         }
     },
     line(KeyCode.l, "replace", "orthogonal"){
@@ -132,7 +133,12 @@ public enum EditorTool{
                     Block dest = tile.floor();
                     if(dest == editor.drawBlock) return;
                     tester = t -> t.floor() == dest;
-                    setter = t -> t.setFloor(editor.drawBlock.asFloor());
+                    setter = t -> {
+                        t.setFloor(editor.drawBlock.asFloor());
+                        if(!(t.overlay() instanceof OverlayFloor) && !t.floor().supportsOverlay){
+                            t.setOverlay(Blocks.air);
+                        }
+                    };
                 }else{
                     Block dest = tile.block();
                     if(dest == editor.drawBlock) return;
